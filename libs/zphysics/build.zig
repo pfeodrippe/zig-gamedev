@@ -42,7 +42,7 @@ pub fn build(b: *std.Build) void {
     });
     zjolt.addIncludePath(b.path("libs/JoltC"));
 
-    const joltc = b.addStaticLibrary(.{
+    const joltc = b.addSharedLibrary(.{
         .name = "joltc",
         .target = target,
         .optimize = optimize,
