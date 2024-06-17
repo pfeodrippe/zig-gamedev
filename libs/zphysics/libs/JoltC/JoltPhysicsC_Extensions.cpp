@@ -43,6 +43,21 @@ JPC_PhysicsSystem_GetBodiesUnsafe(JPC_PhysicsSystem *in_physics_system)
 }
 //--------------------------------------------------------------------------------------------------
 JPC_API void
+JPC_PhysicsSystem_GetBodies(JPC_PhysicsSystem *in_physics_system, JPC_Body ** out_bodies)
+{
+    assert(in_physics_system != nullptr && out_bodies != nullptr);
+    auto physics_system = reinterpret_cast<JPH::PhysicsSystem *>(in_physics_system);
+    //auto bodies = reinterpret_cast<JPC_Body **>(physics_system->mBodyManager.mBodies.data());
+
+    for (JPH::Body *b : physics_system->mBodyManager.mBodies)
+        if (JPH::BodyManager::sIsValidBodyPointer(b))
+        {
+            *out_bodies = reinterpret_cast<JPC_Body *>(b);
+            out_bodies += 1;
+        }
+}
+//--------------------------------------------------------------------------------------------------
+JPC_API void
 JPC_PhysicsSystem_GetBodyIDs(const JPC_PhysicsSystem *in_physics_system,
                              uint32_t in_max_body_ids,
                              uint32_t *out_num_body_ids,
