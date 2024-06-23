@@ -2051,6 +2051,17 @@ JPC_BodyInterface_IsAdded(const JPC_BodyInterface *in_iface, JPC_BodyID in_body_
 }
 //--------------------------------------------------------------------------------------------------
 JPC_API void
+JPC_BodyInterface_MoveKinematic(JPC_BodyInterface *in_iface,
+                                JPC_BodyID in_body_id,
+                                const JPC_Real in_target_position[3],
+                                const float in_target_rotation[4],
+                                float in_delta_time)
+{
+    toJph(in_iface)->MoveKinematic(
+        toJph(in_body_id), loadRVec3(in_target_position), JPH::Quat(loadVec4(in_target_rotation)), in_delta_time);
+}
+//--------------------------------------------------------------------------------------------------
+JPC_API void
 JPC_BodyInterface_SetLinearAndAngularVelocity(JPC_BodyInterface *in_iface,
                                               JPC_BodyID in_body_id,
                                               const float in_linear_velocity[3],
@@ -2258,7 +2269,7 @@ JPC_BodyInterface_AddAngularImpulse(JPC_BodyInterface *in_iface, JPC_BodyID in_b
     toJph(in_iface)->AddAngularImpulse(toJph(in_body_id), loadVec3(in_impulse));
 }
 //--------------------------------------------------------------------------------------------------
-JPC_API JPC_MotionType 
+JPC_API JPC_MotionType
 JPC_BodyInterface_GetMotionType(const JPC_BodyInterface *in_iface, JPC_BodyID in_body_id)
 {
     return toJpc(toJph(in_iface)->GetMotionType(toJph(in_body_id)));

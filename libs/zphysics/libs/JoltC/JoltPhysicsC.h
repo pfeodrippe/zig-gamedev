@@ -1714,6 +1714,14 @@ JPC_BodyInterface_GetLinearAndAngularVelocity(const JPC_BodyInterface *in_iface,
                                               JPC_BodyID in_body_id,
                                               float out_linear_velocity[3],
                                               float out_angular_velocity[3]);
+
+JPC_API void
+JPC_BodyInterface_MoveKinematic(JPC_BodyInterface *in_iface,
+                                JPC_BodyID in_body_id,
+                                const JPC_Real in_target_position[3],
+                                const float in_target_rotation[4],
+                                float in_delta_time);
+
 JPC_API void
 JPC_BodyInterface_SetLinearVelocity(JPC_BodyInterface *in_iface,
                                     JPC_BodyID in_body_id,
