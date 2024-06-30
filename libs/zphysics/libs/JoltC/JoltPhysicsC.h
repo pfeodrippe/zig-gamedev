@@ -1208,10 +1208,6 @@ JPC_PhysicsSystem_GetActiveBodyIDs(const JPC_PhysicsSystem *in_physics_system,
 JPC_API JPC_Body **
 JPC_PhysicsSystem_GetBodiesUnsafe(JPC_PhysicsSystem *in_physics_system);
 
-// CUSTOM
-JPC_API void
-JPC_PhysicsSystem_GetBodies(JPC_PhysicsSystem *in_physics_system, JPC_Body ** out_bodies);
-
 #if JPC_DEBUG_RENDERER == 1
 JPC_API void
 JPC_PhysicsSystem_DrawBodies(JPC_PhysicsSystem *in_physics_system,
@@ -2122,6 +2118,29 @@ JPC_CharacterVirtual_GetLinearVelocity(const JPC_CharacterVirtual *in_character,
 JPC_API void
 JPC_CharacterVirtual_SetLinearVelocity(JPC_CharacterVirtual *in_character, const float in_linear_velocity[3]);
 //--------------------------------------------------------------------------------------------------
+
+// CUSTOM
+JPC_API const JPC_Shape *
+JPC_BodyInterface_GetShape(JPC_BodyInterface *in_iface, JPC_BodyID in_body_id);
+
+JPC_API void
+JPC_PhysicsSystem_GetBodies(JPC_PhysicsSystem *in_physics_system, JPC_Body ** out_bodies);
+
+JPC_API void
+JPC_Shape_GetLocalBounds(const JPC_Shape *in_shape, float out_min[3], float out_max[3]);
+
+JPC_API void
+JPC_Shape_GetWorldSpaceBounds(const JPC_Shape *in_shape,
+                              float in_center_of_mass_transform [16],
+                              float in_scale[3],
+                              float out_min[3],
+                              float out_max[3]);
+
+JPC_API void
+JPC_BodyInterface_GetCenterOfMassTransform(const JPC_BodyInterface *in_face,
+                                           JPC_BodyID in_body_id,
+                                           float out_transform[16]);
+
 #ifdef __cplusplus
 }
 #endif

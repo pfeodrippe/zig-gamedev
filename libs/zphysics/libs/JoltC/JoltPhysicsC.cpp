@@ -1820,6 +1820,28 @@ JPC_Shape_GetType(const JPC_Shape *in_shape)
     return toJpc(toJph(in_shape)->GetType());
 }
 //--------------------------------------------------------------------------------------------------
+JPC_API void
+JPC_Shape_GetLocalBounds(const JPC_Shape *in_shape, float out_min[3], float out_max[3])
+{
+    const JPH::AABox& aabb = toJph(in_shape)->GetLocalBounds();
+    storeVec3(out_min, aabb.mMin);
+    storeVec3(out_max, aabb.mMax);
+}
+//--------------------------------------------------------------------------------------------------
+JPC_API void
+JPC_Shape_GetWorldSpaceBounds(const JPC_Shape *in_shape,
+                              float in_center_of_mass_transform[16],
+                              float in_scale[3],
+                              float out_min[3],
+                              float out_max[3])
+{
+    const JPH::AABox& aabb = toJph(in_shape)->GetWorldSpaceBounds(
+        loadMat44(in_center_of_mass_transform),
+        loadVec3(in_scale));
+    storeVec3(out_min, aabb.mMin);
+    storeVec3(out_max, aabb.mMax);
+}
+//--------------------------------------------------------------------------------------------------
 JPC_API JPC_ShapeSubType
 JPC_Shape_GetSubType(const JPC_Shape *in_shape)
 {
@@ -2007,6 +2029,20 @@ JPC_API JPC_Body *
 JPC_BodyInterface_CreateBody(JPC_BodyInterface *in_iface, const JPC_BodyCreationSettings *in_settings)
 {
     return toJpc(toJph(in_iface)->CreateBody(*toJph(in_settings)));
+}
+//--------------------------------------------------------------------------------------------------
+JPC_API const JPC_Shape *
+JPC_BodyInterface_GetShape(JPC_BodyInterface *in_iface, JPC_BodyID in_body_id)
+{
+    return toJpc(toJph(in_iface)->GetShape(toJph(in_body_id)));
+}
+//--------------------------------------------------------------------------------------------------
+JPC_API void
+JPC_BodyInterface_GetCenterOfMassTransform(const JPC_BodyInterface *in_face,
+                                           JPC_BodyID in_body_id,
+                                           float out_transform[16])
+{
+    storeMat44(out_transform, toJph(in_face)->GetCenterOfMassTransform(toJph(in_body_id)));
 }
 //--------------------------------------------------------------------------------------------------
 JPC_API JPC_Body *
