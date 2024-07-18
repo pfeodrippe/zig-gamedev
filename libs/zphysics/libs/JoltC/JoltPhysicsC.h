@@ -82,10 +82,11 @@ enum
     JPC_SHAPE_TYPE_DECORATED    = 2,
     JPC_SHAPE_TYPE_MESH         = 3,
     JPC_SHAPE_TYPE_HEIGHT_FIELD = 4,
-    JPC_SHAPE_TYPE_USER1        = 5,
-    JPC_SHAPE_TYPE_USER2        = 6,
-    JPC_SHAPE_TYPE_USER3        = 7,
-    JPC_SHAPE_TYPE_USER4        = 8
+    JPC_SHAPE_TYPE_SOFT_BODY    = 5,
+    JPC_SHAPE_TYPE_USER1        = 6,
+    JPC_SHAPE_TYPE_USER2        = 7,
+    JPC_SHAPE_TYPE_USER3        = 8,
+    JPC_SHAPE_TYPE_USER4        = 9
 };
 
 typedef uint8_t JPC_ShapeSubType;
@@ -105,22 +106,23 @@ enum
     JPC_SHAPE_SUB_TYPE_OFFSET_CENTER_OF_MASS = 11,
     JPC_SHAPE_SUB_TYPE_MESH                  = 12,
     JPC_SHAPE_SUB_TYPE_HEIGHT_FIELD          = 13,
-    JPC_SHAPE_SUB_TYPE_USER1                 = 14,
-    JPC_SHAPE_SUB_TYPE_USER2                 = 15,
-    JPC_SHAPE_SUB_TYPE_USER3                 = 16,
-    JPC_SHAPE_SUB_TYPE_USER4                 = 17,
-    JPC_SHAPE_SUB_TYPE_USER5                 = 18,
-    JPC_SHAPE_SUB_TYPE_USER6                 = 19,
-    JPC_SHAPE_SUB_TYPE_USER7                 = 20,
-    JPC_SHAPE_SUB_TYPE_USER8                 = 21,
-    JPC_SHAPE_SUB_TYPE_USER_CONVEX1          = 22,
-    JPC_SHAPE_SUB_TYPE_USER_CONVEX2          = 23,
-    JPC_SHAPE_SUB_TYPE_USER_CONVEX3          = 24,
-    JPC_SHAPE_SUB_TYPE_USER_CONVEX4          = 25,
-    JPC_SHAPE_SUB_TYPE_USER_CONVEX5          = 26,
-    JPC_SHAPE_SUB_TYPE_USER_CONVEX6          = 27,
-    JPC_SHAPE_SUB_TYPE_USER_CONVEX7          = 28,
-    JPC_SHAPE_SUB_TYPE_USER_CONVEX8          = 29,
+    JPC_SHAPE_SUB_TYPE_SOFT_BODY             = 14,
+    JPC_SHAPE_SUB_TYPE_USER1                 = 15,
+    JPC_SHAPE_SUB_TYPE_USER2                 = 16,
+    JPC_SHAPE_SUB_TYPE_USER3                 = 17,
+    JPC_SHAPE_SUB_TYPE_USER4                 = 18,
+    JPC_SHAPE_SUB_TYPE_USER5                 = 19,
+    JPC_SHAPE_SUB_TYPE_USER6                 = 20,
+    JPC_SHAPE_SUB_TYPE_USER7                 = 21,
+    JPC_SHAPE_SUB_TYPE_USER8                 = 22,
+    JPC_SHAPE_SUB_TYPE_USER_CONVEX1          = 23,
+    JPC_SHAPE_SUB_TYPE_USER_CONVEX2          = 24,
+    JPC_SHAPE_SUB_TYPE_USER_CONVEX3          = 25,
+    JPC_SHAPE_SUB_TYPE_USER_CONVEX4          = 26,
+    JPC_SHAPE_SUB_TYPE_USER_CONVEX5          = 27,
+    JPC_SHAPE_SUB_TYPE_USER_CONVEX6          = 28,
+    JPC_SHAPE_SUB_TYPE_USER_CONVEX7          = 29,
+    JPC_SHAPE_SUB_TYPE_USER_CONVEX8          = 30,
 };
 
 typedef enum JPC_ConstraintType
@@ -159,12 +161,33 @@ typedef enum JPC_ConstraintSpace
     _JPC_CONSTRAINT_SPACE_FORCEU32         = 0x7fffffff
 } JPC_ConstraintSpace;
 
+typedef uint8_t JPC_BodyType;
+enum
+{
+    JPC_BODY_TYPE_RIGID_BODY = 0,
+    JPC_BODY_TYPE_SOFT_BODY  = 1    
+};
+
 typedef uint8_t JPC_MotionType;
 enum
 {
     JPC_MOTION_TYPE_STATIC    = 0,
     JPC_MOTION_TYPE_KINEMATIC = 1,
     JPC_MOTION_TYPE_DYNAMIC   = 2
+};
+
+typedef uint8_t JPC_AllowedDofs;
+enum
+{
+	JPC_ALLOWED_DOFS_NONE				= 0b000000,									///< No degrees of freedom are allowed. Note that this is not valid and will crash. Use a static body instead.
+	JPC_ALLOWED_DOFS_ALL				= 0b111111,									///< All degrees of freedom are allowed
+	JPC_ALLOWED_DOFS_TRANSLATION_X		= 0b000001,									///< Body can move in world space X axis
+	JPC_ALLOWED_DOFS_TRANSLATION_Y		= 0b000010,									///< Body can move in world space Y axis
+	JPC_ALLOWED_DOFS_TRANSLATION_Z		= 0b000100,									///< Body can move in world space Z axis
+	JPC_ALLOWED_DOFS_ROTATION_X			= 0b001000,									///< Body can rotate around world space X axis
+	JPC_ALLOWED_DOFS_ROTATION_Y			= 0b010000,									///< Body can rotate around world space Y axis
+	JPC_ALLOWED_DOFS_ROTATION_Z			= 0b100000,									///< Body can rotate around world space Z axis
+	JPC_ALLOWED_DOFS_PLANE_2D				= JPC_ALLOWED_DOFS_TRANSLATION_X | JPC_ALLOWED_DOFS_TRANSLATION_Y | JPC_ALLOWED_DOFS_ROTATION_Z	///< Body can only move in X and Y axis and rotate around Z axis
 };
 
 typedef uint8_t JPC_MotionQuality;
@@ -350,6 +373,9 @@ typedef struct JPC_MotionProperties
 
     JPC_MotionQuality  motion_quality;
     bool               allow_sleeping;
+    JPC_AllowedDofs    allowed_dofs;
+    uint8_t			   num_velocity_steps_override;
+	uint8_t			   num_position_steps_override;
 
 #if JPC_DOUBLE_PRECISION == 1
     alignas(8) uint8_t reserved[76];
@@ -358,6 +384,7 @@ typedef struct JPC_MotionProperties
 #endif
 
 #if JPC_ENABLE_ASSERTS == 1
+    JPC_BodyType       cached_body_type;
     JPC_MotionType     cached_motion_type;
 #endif
 } JPC_MotionProperties;
@@ -381,10 +408,14 @@ typedef struct JPC_BodyCreationSettings
     JPC_ObjectLayer            object_layer;
     JPC_CollisionGroup         collision_group;
     JPC_MotionType             motion_type;
+    JPC_AllowedDofs            allowed_dofs;
     bool                       allow_dynamic_or_kinematic;
     bool                       is_sensor;
+    bool                       collide_kinematic_vs_non_dynamic;
     bool                       use_manifold_reduction;
+    bool                       apply_gyroscopic_force;
     JPC_MotionQuality          motion_quality;
+    bool					   ehanced_internal_edge_removal;
     bool                       allow_sleeping;
     float                      friction;
     float                      restitution;
@@ -393,10 +424,12 @@ typedef struct JPC_BodyCreationSettings
     float                      max_linear_velocity;
     float                      max_angular_velocity;
     float                      gravity_factor;
+    unsigned int			   num_velocity_steps_override;									///< Used only when this body is dynamic and colliding. Override for the number of solver velocity iterations to run, 0 means use the default in PhysicsSettings::mNumVelocitySteps. The number of iterations to use is the max of all contacts and constraints in the island.
+	unsigned int			   num_position_steps_override;
     JPC_OverrideMassProperties override_mass_properties;
     float                      inertia_multiplier;
     JPC_MassProperties         mass_properties_override;
-    const void *               reserved;
+    const JPC_ShapeSettings *  shape_settings;
     const JPC_Shape *          shape;
 } JPC_BodyCreationSettings;
 
@@ -419,6 +452,7 @@ typedef struct JPC_Body
 
     JPC_ObjectLayer         object_layer;
 
+    JPC_BodyType            body_type;
     JPC_BroadPhaseLayer     broad_phase_layer;
     JPC_MotionType          motion_type;
     uint8_t                 flags;
@@ -487,6 +521,8 @@ typedef struct JPC_SubShapeIDPair
     }                  second;
 } JPC_SubShapeIDPair;
 
+#define VEC3(x) alignas(16) float x[4]
+
 // NOTE: Needs to be kept in sync with JPH::ContactManifold
 typedef struct JPC_ContactManifold
 {
@@ -510,7 +546,13 @@ typedef struct JPC_ContactSettings
 {
     float combined_friction;
     float combined_restitution;
+    float inv_mass_scale1;
+	float inv_inertia_scale1;
+	float inv_mass_scale2;
+	float inv_inertia_scale2;
     bool  is_sensor;
+    VEC3(mRelativeLinearSurfaceVelocity); ///< Relative linear surface velocity between the bodies (world space surface velocity of body 2 - world space surface velocity of body 1), can be used to create a conveyor belt effect
+	VEC3(mRelativeAngularSurfaceVelocity);
 } JPC_ContactSettings;
 
 // NOTE: Needs to be kept in sync with JPH::CollideShapeResult
@@ -1027,6 +1069,12 @@ JPC_MotionProperties_SetGravityFactor(JPC_MotionProperties *in_properties,
 JPC_API void
 JPC_MotionProperties_SetMassProperties(JPC_MotionProperties *in_properties,
                                        const JPC_MassProperties *in_mass_properties);
+
+JPC_API void
+JPC_MotionProperties_SetMassProperties_2(JPC_MotionProperties *in_properties,
+                                         const JPC_MassProperties *in_mass_properties,
+                                         JPC_AllowedDofs allowed_dofs);
+
 JPC_API float
 JPC_MotionProperties_GetInverseMass(const JPC_MotionProperties *in_properties);
 
@@ -1124,6 +1172,9 @@ JPC_PhysicsSystem_GetNumBodies(const JPC_PhysicsSystem *in_physics_system);
 
 JPC_API uint32_t
 JPC_PhysicsSystem_GetNumActiveBodies(const JPC_PhysicsSystem *in_physics_system);
+
+JPC_API uint32_t
+JPC_PhysicsSystem_GetNumActiveSoftBodies(const JPC_PhysicsSystem *in_physics_system);
 
 JPC_API uint32_t
 JPC_PhysicsSystem_GetMaxBodies(const JPC_PhysicsSystem *in_physics_system);

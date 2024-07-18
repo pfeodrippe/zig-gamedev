@@ -332,6 +332,10 @@ FN(toJpc)(JPH::ContactSettings *in) {
 FN(toJpc)(JPH::BroadPhaseLayer in) { return static_cast<JPC_BroadPhaseLayer>(in); }
 FN(toJpc)(JPH::ObjectLayer in) { return static_cast<JPC_ObjectLayer>(in); }
 FN(toJpc)(JPH::EShapeType in) { return static_cast<JPC_ShapeType>(in); }
+
+FN(toJpc)(JPH::EAllowedDOFs in) { return static_cast<JPC_AllowedDofs>(in); }
+FN(toJph)(JPC_AllowedDofs in) { return static_cast<JPH::EAllowedDOFs>(in); }
+
 FN(toJpc)(JPH::EShapeSubType in) { return static_cast<JPC_ShapeSubType>(in); }
 FN(toJpc)(JPH::EConstraintType in) { return static_cast<JPC_ConstraintType>(in); }
 FN(toJpc)(JPH::EConstraintSubType in) { return static_cast<JPC_ConstraintSubType>(in); }
@@ -1007,7 +1011,13 @@ JPC_PhysicsSystem_GetNumBodies(const JPC_PhysicsSystem *in_physics_system)
 JPC_API uint32_t
 JPC_PhysicsSystem_GetNumActiveBodies(const JPC_PhysicsSystem *in_physics_system)
 {
-    return toJph(in_physics_system)->GetNumActiveBodies();
+    return toJph(in_physics_system)->GetNumActiveBodies(JPH::EBodyType::RigidBody);
+}
+//--------------------------------------------------------------------------------------------------
+JPC_API uint32_t
+JPC_PhysicsSystem_GetNumActiveSoftBodies(const JPC_PhysicsSystem *in_physics_system)
+{
+    return toJph(in_physics_system)->GetNumActiveBodies(JPH::EBodyType::SoftBody);
 }
 //--------------------------------------------------------------------------------------------------
 JPC_API uint32_t
@@ -1077,7 +1087,7 @@ JPC_API JPC_PhysicsUpdateError
 JPC_PhysicsSystem_Update(JPC_PhysicsSystem *in_physics_system,
                          float in_delta_time,
                          int in_collision_steps,
-                         int in_integration_sub_steps,
+                         int in_integration_sub_steps__ignored,
                          JPC_TempAllocator *in_temp_allocator,
                          JPC_JobSystem *in_job_system)
 {
@@ -1085,7 +1095,6 @@ JPC_PhysicsSystem_Update(JPC_PhysicsSystem *in_physics_system,
     JPC_PhysicsUpdateError error = (JPC_PhysicsUpdateError)toJph(in_physics_system)->Update(
         in_delta_time,
         in_collision_steps,
-        in_integration_sub_steps,
         reinterpret_cast<JPH::TempAllocator *>(in_temp_allocator),
         reinterpret_cast<JPH::JobSystem *>(in_job_system));
     return error;
@@ -2801,7 +2810,15 @@ JPC_API void
 JPC_MotionProperties_SetMassProperties(JPC_MotionProperties *in_properties,
                                        const JPC_MassProperties *in_mass_properties)
 {
-    toJph(in_properties)->SetMassProperties(*toJph(in_mass_properties));
+    toJph(in_properties)->SetMassProperties(JPH::EAllowedDOFs::All, *toJph(in_mass_properties));
+}
+//--------------------------------------------------------------------------------------------------
+JPC_API void
+JPC_MotionProperties_SetMassProperties_2(JPC_MotionProperties *in_properties,
+                                         const JPC_MassProperties *in_mass_properties,
+                                         JPC_AllowedDofs allowed_dofs)
+{
+    toJph(in_properties)->SetMassProperties(toJph(allowed_dofs), *toJph(in_mass_properties));
 }
 //--------------------------------------------------------------------------------------------------
 JPC_API float
