@@ -2192,6 +2192,10 @@ JPC_BodyInterface_GetCenterOfMassTransform(const JPC_BodyInterface *in_face,
                                            JPC_BodyID in_body_id,
                                            float out_transform[16]);
 
+JPC_API void
+JPC_Vec4_Normalize(const float in_rotation[4],
+                   float out_rotation[4]);
+
 #ifdef __cplusplus
 }
 #endif

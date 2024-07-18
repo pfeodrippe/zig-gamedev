@@ -3153,3 +3153,10 @@ JPC_CharacterVirtual_SetLinearVelocity(JPC_CharacterVirtual *in_character, const
 {
     toJph(in_character)->SetLinearVelocity(loadVec3(in_linear_velocity));
 }
+//--------------------------------------------------------------------------------------------------
+JPC_API void
+JPC_Vec4_Normalize(const float in_rotation[4],
+                   float out_rotation[4]) 
+{
+    storeVec4(out_rotation, loadVec4(in_rotation).Normalized());
+}
