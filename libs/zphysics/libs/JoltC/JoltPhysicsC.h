@@ -11,7 +11,16 @@
 // Const
 //
 //--------------------------------------------------------------------------------------------------
+
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
+
+#define JPC_API extern "C" __declspec(dllexport)
+
+#else
+
 #define JPC_API // TODO: Define this properly
+
+#endif
 
 // Always turn on asserts in Debug mode
 #if defined(_DEBUG) || defined(JPH_ENABLE_ASSERTS)
@@ -165,7 +174,7 @@ typedef uint8_t JPC_BodyType;
 enum
 {
     JPC_BODY_TYPE_RIGID_BODY = 0,
-    JPC_BODY_TYPE_SOFT_BODY  = 1    
+    JPC_BODY_TYPE_SOFT_BODY  = 1
 };
 
 typedef uint8_t JPC_MotionType;
