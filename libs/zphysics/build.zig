@@ -47,7 +47,6 @@ pub fn build(b: *std.Build) void {
         .target = target,
         .optimize = optimize,
     });
-    b.installArtifact(joltc);
 
     joltc.addIncludePath(b.path("libs"));
     joltc.addIncludePath(b.path("libs/JoltC"));
@@ -204,5 +203,7 @@ pub fn build(b: *std.Build) void {
             "-fno-access-control",
             "-fno-sanitize=undefined",
         },
-    });    
+    });
+
+    b.installArtifact(joltc);
 }
