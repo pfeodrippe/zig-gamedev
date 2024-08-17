@@ -1,10 +1,8 @@
 const std = @import("std");
 
-const Options = @import("../../build.zig").Options;
-
 const demo_name = "minimal_sdl_gl";
 
-pub fn build(b: *std.Build, options: Options) *std.Build.Step.Compile {
+pub fn build(b: *std.Build, options: anytype) *std.Build.Step.Compile {
     const cwd_path = b.pathJoin(&.{ "samples", demo_name });
     const src_path = b.pathJoin(&.{ cwd_path, "src" });
     const exe = b.addExecutable(.{
@@ -14,15 +12,19 @@ pub fn build(b: *std.Build, options: Options) *std.Build.Step.Compile {
         .optimize = options.optimize,
     });
 
-    const zsdl = b.dependency("zsdl", .{
-        .target = options.target,
-    });
+    const zsdl = b.dependency("zsdl", .{});
     exe.root_module.addImport("zsdl2", zsdl.module("zsdl2"));
 
-    @import("zsdl").addLibraryPathsTo(exe);
     @import("zsdl").link_SDL2(exe);
 
-    @import("zsdl").install_sdl2(&exe.step, options.target.result, .bin);
+    const sdl2_libs_path = b.dependency("sdl2-prebuilt", .{}).path("").getPath(b);
+
+    @import("zsdl").addLibraryPathsTo(sdl2_libs_path, exe);
+    @import("zsdl").addRPathsTo(sdl2_libs_path, exe);
+
+    if (@import("zsdl").install_SDL2(b, options.target.result, sdl2_libs_path, .bin)) |install_sdl2_step| {
+        b.getInstallStep().dependOn(install_sdl2_step);
+    }
 
     const zopengl = b.dependency("zopengl", .{});
     exe.root_module.addImport("zopengl", zopengl.module("root"));

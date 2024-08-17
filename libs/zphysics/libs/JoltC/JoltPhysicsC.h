@@ -302,6 +302,13 @@ typedef void (*JPC_FreeFunction)(void *in_block);
 
 typedef void *(*JPC_AlignedAllocateFunction)(size_t in_size, size_t in_alignment);
 typedef void (*JPC_AlignedFreeFunction)(void *in_block);
+
+typedef void (*JPC_TraceFunction)(const char *inFMT, ...);
+typedef bool (*JPC_AssertFailedFunction)(
+    const char* in_expression,
+    const char* in_message,
+    const char* in_file,
+    uint32_t in_line);
 //--------------------------------------------------------------------------------------------------
 //
 // Opaque Types
@@ -637,8 +644,8 @@ typedef struct JPC_RayCastSettings
 // NOTE: Needs to be kept in sync with JPH::AABox
 typedef struct JPC_AABox
 {
-    float min[3];
-    float max[3];
+    float min[4];
+    float max[4];
 } JPC_AABox;
 
 // NOTE: Needs to be kept in sync with JPH::Color
@@ -957,6 +964,13 @@ JPC_RegisterCustomAllocator(JPC_AllocateFunction in_alloc,
                             JPC_FreeFunction in_free,
                             JPC_AlignedAllocateFunction in_aligned_alloc,
                             JPC_AlignedFreeFunction in_aligned_free);
+
+JPC_API void
+JPC_RegisterTrace(JPC_TraceFunction in_trace);
+
+JPC_API void
+JPC_RegisterAssertFailed(JPC_AssertFailedFunction in_assert_failed);
+
 JPC_API void
 JPC_CreateFactory(void);
 

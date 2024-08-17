@@ -18,7 +18,6 @@
         .zd3d12 = .{ .path = "libs/zd3d12" },
         .zflecs = .{ .path = "libs/zflecs" },
         .zglfw = .{ .path = "libs/zglfw" },
-        .zgpu = .{ .path = "libs/zgpu" },
         .zgui = .{ .path = "libs/zgui" },
         .zjobs = .{ .path = "libs/zjobs" },
         .zmath = .{ .path = "libs/zmath" },
@@ -29,13 +28,18 @@
         .zphysics = .{ .path = "libs/zphysics" },
         .zpix = .{ .path = "libs/zpix" },
         .zpool = .{ .path = "libs/zpool" },
-        .zsdl = .{ .path = "libs/zsdl" },
         .zstbi = .{ .path = "libs/zstbi" },
         .ztracy = .{ .path = "libs/ztracy" },
         .zwin32 = .{ .path = "libs/zwin32" },
         .zxaudio2 = .{ .path = "libs/zxaudio2" },
 
-        // zgpu dependencies
+        .zemscripten = .{ .path = "libs/zemscripten" },
+        .emsdk = .{
+            .url = "https://github.com/emscripten-core/emsdk/archive/refs/tags/3.1.52.tar.gz",
+            .hash = "12202192726bf983ec243c7eea956d6107baf6f49d50b62f6a91f5d7471bc6daf53b",
+        },
+
+        .zgpu = .{ .path = "libs/zgpu" },
         .dawn_x86_64_windows_gnu = .{
             .url = "https://github.com/michal-z/webgpu_dawn-x86_64-windows-gnu/archive/d3a68014e6b6b53fd330a0ccba99e4dcfffddae5.tar.gz",
             .hash = "1220f9448cde02ef3cd51bde2e0850d4489daa0541571d748154e89c6eb46c76a267",
@@ -55,6 +59,12 @@
         .dawn_x86_64_macos = .{
             .url = "https://github.com/michal-z/webgpu_dawn-x86_64-macos/archive/901716b10b31ce3e0d3fe479326b41e91d59c661.tar.gz",
             .hash = "1220b1f02f2f7edd98a078c64e3100907d90311d94880a3cc5927e1ac009d002667a",
+        },
+
+        .zsdl = .{ .path = "libs/zsdl" },
+        .@"sdl2-prebuilt" = .{
+            .url = "https://github.com/zig-gamedev/SDL2-prebuilt/archive/9ee84ec9ab63cf2bf2659525b4c30ad9ad7339b2.tar.gz",
+            .hash = "1220375998747e24c922eeb791de1dcd0a670571a75d4cd22a5129663b53ba7be7d2",
         },
     },
 }

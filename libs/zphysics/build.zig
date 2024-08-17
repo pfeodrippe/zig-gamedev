@@ -25,6 +25,11 @@ pub fn build(b: *std.Build) void {
             "enable_debug_renderer",
             "Enable debug renderer",
         ) orelse false,
+        .shared = b.option(
+            bool,
+            "shared",
+            "Build JoltC as shared lib",
+        ) orelse false,
     };
 
     const options_step = b.addOptions();
