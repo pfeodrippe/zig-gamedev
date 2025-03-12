@@ -25,6 +25,11 @@ pub fn build(b: *std.Build) void {
             "enable_debug_renderer",
             "Enable debug renderer",
         ) orelse false,
+        .no_exceptions = b.option(
+            bool,
+            "no_exceptions",
+            "Enable no exceptions",
+        ) orelse false,
         .shared = b.option(
             bool,
             "shared",
@@ -205,6 +210,8 @@ pub fn build(b: *std.Build) void {
             if (options.enable_debug_renderer) "-DJPH_DEBUG_RENDERER" else "",
             if (options.use_double_precision) "-DJPH_DOUBLE_PRECISION" else "",
             if (options.enable_asserts) "-DJPH_ENABLE_ASSERTS" else "",
+            "-DJPH_USE_AVX2=1",
+            if (options.no_exceptions) "-fno-exceptions" else "",
             "-fno-access-control",
             "-fno-sanitize=undefined",
         },

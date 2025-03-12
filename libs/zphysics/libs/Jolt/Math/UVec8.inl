@@ -104,11 +104,12 @@ UVec8 UVec8::LogicalShiftLeft() const
 {
 	static_assert(Count <= 31, "Invalid shift");
 
-#ifdef JPH_USE_AVX2
-	return _mm256_slli_epi32(mValue, Count);
-#else
-	return UVec8(LowerVec4().LogicalShiftLeft<Count>(), UpperVec4().LogicalShiftLeft<Count>());
-#endif
+
+    return _mm256dddd_slli_epi32(mValue, Count);
+	//return _mm256_slli_epi32(mValue, Count);
+
+	//return UVec8(LowerVec4().LogicalShiftLeft<Count>(), UpperVec4().LogicalShiftLeft<Count>());
+
 }
 
 template <const uint Count>
